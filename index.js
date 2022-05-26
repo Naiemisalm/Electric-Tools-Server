@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
+require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express()
 const prot = process.env.PROT || 5000;
@@ -12,7 +14,7 @@ app.use(express.json())
 
 // MONGODB
 
-const uri = "mongodb+srv://Electric-tools:DSGqSha8Or3BJ4Qz@cluster0.jlquu.mongodb.net/?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.jlquu.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
@@ -37,7 +39,14 @@ async function run() {
             const query = {_id:ObjectId(id)};
             const tools = await toolsCllection.findOne(query);
             res.send(tools);
-        })
+        });
+
+        app.get('/user', async (req, res) =>{
+            const users = await userCllection.find().toArray();
+            res.send(users);
+        });
+
+
         app.put('/user/:email', async(req,res)=>{
             const email = req.params.email;
             const user = req.body;
@@ -47,8 +56,9 @@ async function run() {
                 $set: user,
             };
             const result = await userCllection.updateOne(filter, updateDoc, options);
-            // const token = jwt.sign({ email: email },'e122b7a6b8c5eecb94f993a4d63707b0664766c18669e123b1a6d4bf4d0799e8a13c6f97db3b45d5be5c07d13427db730c20ead62ca374f90daad7f765456545', { expiresIn: '1h' })
-            res.send( result);
+            const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET,{ expiresIn: '1h' })
+
+            res.send({ result , token});
 
         })
 
