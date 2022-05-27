@@ -33,7 +33,7 @@ function verifyJWT(req, res, next) {
 }
 async function run() {
     try {
-        await client.connect();
+        await client.connect()
         console.log('data connected')
         const toolsCllection = client.db('ElectricTools').collection('Tools')
         const bookigCllection = client.db('ElectricTools').collection('bookings')
@@ -52,6 +52,12 @@ async function run() {
             const query = { _id: ObjectId(id) };
             const tools = await toolsCllection.findOne(query);
             res.send(tools);
+        });
+        // POST
+        app.post('/tools', async(req, res) =>{
+            const newService = req.body;
+            const result = await toolsCllection.insertOne(newService);
+            res.send(result);
         });
 
         // Manage Product
