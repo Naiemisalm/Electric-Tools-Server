@@ -54,6 +54,14 @@ async function run() {
             res.send(tools);
         });
 
+        // Manage Product
+        app.delete('/tools/:id', async(req, res)=>{
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const result = await productsCollection.deleteOne(query);
+            res.send(result);
+          });
+
         app.get('/user', async (req, res) => {
             const users = await userCllection.find().toArray();
             res.send(users);
