@@ -59,8 +59,20 @@ async function run() {
             res.send(users);
         });
 
+        app.put('/user/admin/:email',  async (req, res) => {
+            const email = req.params.email;
+            console.log(email)
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+              $set: { role: 'admin' },
+            };
+            const result = await userCllection.updateOne(filter, updateDoc, options);
+            res.send(result);
+          })
 
-        app.put('/user/:email', async (req, res) => {
+
+        app.put('/user/:email',verifyJWT, async (req, res) => {
             const email = req.params.email;
             const user = req.body;
             const filter = { email: email };
